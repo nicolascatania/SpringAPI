@@ -1,6 +1,7 @@
 package com.learningSpringBoot.ProductsAPI.model;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,7 +32,9 @@ public class Product {
     @Column(name ="image_url")
     private String image_url;
 
-    @Column(name = "category_id")
-    private int category_id;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id")
+    @JsonBackReference
+    private Category category;
 
 }

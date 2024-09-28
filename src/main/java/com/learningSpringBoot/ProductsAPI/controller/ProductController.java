@@ -1,8 +1,7 @@
 package com.learningSpringBoot.ProductsAPI.controller;
 
-import com.learningSpringBoot.ProductsAPI.model.Product;
+import com.learningSpringBoot.ProductsAPI.dto.ProductDTO;
 import com.learningSpringBoot.ProductsAPI.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,17 +20,17 @@ public class ProductController {
 
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts() {
+    public ResponseEntity<List<ProductDTO>> getAllProducts() {
         return productService.getAllProducts();
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+    public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO product) {
         return productService.createProduct(product);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable int id) {
+    public ResponseEntity<ProductDTO> getProductById(@PathVariable int id) {
         return productService.getProductById(id);
     }
 
@@ -41,7 +40,7 @@ public class ProductController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable int id, @RequestBody Product updatedProduct) {
+    public ResponseEntity<ProductDTO> updateProduct(@PathVariable int id, @RequestBody ProductDTO updatedProduct) {
         return productService.updateProduct(id, updatedProduct);
     }
 
