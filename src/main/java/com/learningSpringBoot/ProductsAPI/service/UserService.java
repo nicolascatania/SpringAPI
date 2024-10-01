@@ -1,5 +1,8 @@
 package com.learningSpringBoot.ProductsAPI.service;
 
+import com.learningSpringBoot.ProductsAPI.exceptions.EmailAlreadyExistsException;
+import com.learningSpringBoot.ProductsAPI.exceptions.UserAlreadyExistsException;
+import com.learningSpringBoot.ProductsAPI.exceptions.UserNotFoundException;
 import com.learningSpringBoot.ProductsAPI.model.Role;
 import com.learningSpringBoot.ProductsAPI.model.User;
 import com.learningSpringBoot.ProductsAPI.repository.UserRepository;
@@ -10,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.learningSpringBoot.ProductsAPI.constants.RolesConstants.USER_ROLE;
@@ -25,6 +29,15 @@ public class UserService {
     }
 
     public ResponseEntity<Void> createUser(String name, String email, String password) {
+
+        if (userRepository.existsByName(name)) {
+            throw new UserAlreadyExistsException("Username '" + name + "' already in use.");
+        }
+
+        if (userRepository.existsByEmail(email)) {
+            throw new EmailAlreadyExistsException("An account with email '" + email + "' already exists.");
+        }
+
 
         User user = new User();
         Role defaultRole = new Role();
@@ -44,12 +57,34 @@ public class UserService {
         return  new ResponseEntity<>(HttpStatus.CREATED);
     }
 
+    public ResponseEntity<Void> updateUser(int id, String name, String email) {
+
+        Optional<User> user = userRepository.findById(id);
+
+        if (user.isEmpty()) {
+            throw new UserNotFoundException("User with id '" + id + "' not found.");
+        }
+
+
+
+
+        if (userRepository.existsByName(name)) {
+            throw new UserAlreadyExistsException("Username '" + name + "' already in use.");
+        }
+        User userToUpdate = user.get();
+        userToUpdate.setName(name);
+        userToUpdate.setEmail(email);
+
+        userRepository.save(userToUpdate);
+
+        return  new ResponseEntity<>(HttpStatus.OK);
+    }
 
     public ResponseEntity<Void> deleteUserById(int id) {
-        if(userRepository.existsById(id)) {
-            userRepository.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        if (!userRepository.existsById(id)) {
+            throw new UserNotFoundException("User with id '" + id + "' not found.");
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        userRepository.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

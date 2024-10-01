@@ -20,6 +20,11 @@ public class UserController {
         return userService.createUser(user.getName(), user.getEmail(), user.getPassword());
     }
 
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Void> updateUser(@PathVariable int id, @RequestBody User user) {
+        return userService.updateUser(id, user.getName(), user.getEmail());
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUserById(@PathVariable int id) {
         return userService.deleteUserById(id);
