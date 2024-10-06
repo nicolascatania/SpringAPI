@@ -15,10 +15,10 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping
+    /*@PostMapping
     public ResponseEntity<Void> createUser(@RequestBody User user) {
         return userService.createUser(user.getName(), user.getEmail(), user.getPassword());
-    }
+    }*/
 
     @PutMapping("/update/{id}")
     public ResponseEntity<Void> updateUser(@PathVariable int id, @RequestBody User user) {

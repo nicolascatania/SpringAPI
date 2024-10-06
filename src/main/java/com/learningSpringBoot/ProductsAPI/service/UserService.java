@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -28,7 +29,7 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public ResponseEntity<Void> createUser(String name, String email, String password) {
+    /*public ResponseEntity<Void> createUser(String name, String email, String password) {
 
         if (userRepository.existsByName(name)) {
             throw new UserAlreadyExistsException("Username '" + name + "' already in use.");
@@ -50,12 +51,13 @@ public class UserService {
         String hashedPassword = DigestUtils.sha256Hex(password);
         user.setPassword(hashedPassword);
 
-        user.setRoles(new HashSet<>(Set.of(defaultRole)));
+        user.
+        user.setRoles();
 
         userRepository.save(user);
 
         return  new ResponseEntity<>(HttpStatus.CREATED);
-    }
+    }*/
 
     public ResponseEntity<Void> updateUser(int id, String name, String email) {
 
