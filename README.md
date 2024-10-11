@@ -6,7 +6,7 @@ I am currently learning to create APIs with SpringBoot so I built this, a simple
 - Data Transfer Object Pattern.
 - Inversion of control.
 - Dependency injection.
-- Spring Security with Role and JWT based authorization.
+- Spring Security and JWT based authorization.
 - CRUD for different entyties.
 - Password encryption with BCrypt.
 
@@ -15,3 +15,4 @@ I am currently learning to create APIs with SpringBoot so I built this, a simple
 - Unit Testing with Junit and Mockito.
 - A propper documentation.
 - OAtuh2.
+- Roles
