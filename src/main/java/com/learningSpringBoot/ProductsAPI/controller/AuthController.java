@@ -2,6 +2,7 @@ package com.learningSpringBoot.ProductsAPI.controller;
 
 import com.learningSpringBoot.ProductsAPI.dto.AuthResponseDTO;
 import com.learningSpringBoot.ProductsAPI.dto.LoginDTO;
+import com.learningSpringBoot.ProductsAPI.dto.LoginErrorDTO;
 import com.learningSpringBoot.ProductsAPI.dto.RegisterDTO;
 import com.learningSpringBoot.ProductsAPI.model.Role;
 import com.learningSpringBoot.ProductsAPI.model.User;
@@ -16,7 +17,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -53,7 +53,7 @@ public class AuthController {
 
 
     @PostMapping("login")
-    public ResponseEntity<String> login(@RequestBody LoginDTO loginDTO){
+    public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO){
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginDTO.getName(),loginDTO.getPassword())
             );
@@ -63,10 +63,12 @@ public class AuthController {
             if(user.isPresent() && passwordEncoder.matches(loginDTO.getPassword(),user.get().getPassword())){
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 String token = jwtGenerator.generateToken(authentication);
-                return new ResponseEntity<>(token, HttpStatus.OK);
+                AuthResponseDTO response = new AuthResponseDTO(token);
+                return new ResponseEntity<>(response, HttpStatus.OK);
             }
 
-        return ResponseEntity.badRequest().body("Invalid credentials.");
+            LoginErrorDTO errorResponse = new LoginErrorDTO("Invalid credentials.");
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 
 
     }
