@@ -3,6 +3,7 @@ package com.learningSpringBoot.ProductsAPI.controller;
 import com.learningSpringBoot.ProductsAPI.dto.ProductDTO;
 import com.learningSpringBoot.ProductsAPI.service.ProductService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +26,7 @@ public class ProductController {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO product) {
         return productService.createProduct(product);
     }
@@ -35,11 +37,13 @@ public class ProductController {
     }
 
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Void> deleteProductById(@PathVariable int id) {
         return productService.deleteProductById(id);
     }
 
     @PutMapping("/update/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ProductDTO> updateProduct(@PathVariable int id, @RequestBody ProductDTO updatedProduct) {
         return productService.updateProduct(id, updatedProduct);
     }

@@ -4,6 +4,7 @@ import com.learningSpringBoot.ProductsAPI.dto.CategoryDTO;
 import com.learningSpringBoot.ProductsAPI.dto.ProductDTO;
 import com.learningSpringBoot.ProductsAPI.service.CategoryService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,16 +30,19 @@ public class CategoryController {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<CategoryDTO> createCategory(@RequestBody CategoryDTO category) {
         return categoryService.addCategory(category);
     }
 
     @PutMapping("/update/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<CategoryDTO> updateCategory(@PathVariable int id, @RequestBody CategoryDTO category) {
         return categoryService.updateCategory(id, category);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Void> deleteCategory(@PathVariable int id) {
         return categoryService.deleteCategory(id);
     }
