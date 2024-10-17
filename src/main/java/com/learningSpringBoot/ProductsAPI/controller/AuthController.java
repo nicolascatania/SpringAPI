@@ -81,6 +81,10 @@ public class AuthController {
             return new ResponseEntity<>("Username is taken.", HttpStatus.BAD_REQUEST);
         }
 
+        if(userRepository.existsByEmail(registerDTO.getEmail())){
+            return new ResponseEntity<>("Email is taken.", HttpStatus.BAD_REQUEST);
+        }
+
         User user = new User();
         user.setName(registerDTO.getName());
         user.setEmail(registerDTO.getEmail());
