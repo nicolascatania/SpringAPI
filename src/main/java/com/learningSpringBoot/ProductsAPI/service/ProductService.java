@@ -1,5 +1,8 @@
 package com.learningSpringBoot.ProductsAPI.service;
 import com.learningSpringBoot.ProductsAPI.dto.ProductDTO;
+import com.learningSpringBoot.ProductsAPI.dto.UpdatedProductDTO;
+import com.learningSpringBoot.ProductsAPI.exceptions.ProductAlreadyExistsException;
+import com.learningSpringBoot.ProductsAPI.model.Category;
 import com.learningSpringBoot.ProductsAPI.model.Product;
 import com.learningSpringBoot.ProductsAPI.repository.ProductRepository;
 import org.springframework.http.HttpStatus;
@@ -41,6 +44,10 @@ public class ProductService {
     }
 
     public ResponseEntity<ProductDTO> createProduct(ProductDTO productDTO) {
+        if (productRepository.findByName(productDTO.getName()).isPresent()) {
+            throw new ProductAlreadyExistsException("A product with the name '" + productDTO.getName() + "' already exists.");
+        }
+
         Product product = convertToEntity(productDTO);
         Product savedProduct = productRepository.save(product);
         ProductDTO savedProductDTO = convertToDTO(savedProduct);
@@ -60,26 +67,35 @@ public class ProductService {
     }
 
 
-    public ResponseEntity<ProductDTO> getProductById(int id) {
-        Optional<Product> product = productRepository.findById(id);
-        if (product.isPresent()) {
-            ProductDTO productDTO = convertToDTO(product.get());
-            return new ResponseEntity<>(productDTO, HttpStatus.OK);
-        } else {
+    public ResponseEntity<UpdatedProductDTO> updateProduct(UpdatedProductDTO updatedProductDTO) {
+
+        Optional<Product> existingProductOpt = productRepository.findByName(updatedProductDTO.getOldName());
+
+        if (existingProductOpt.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+
+        Optional<Product> duplicateProductOpt = productRepository.findByName(updatedProductDTO.getName());
+        if (duplicateProductOpt.isPresent()) {
+            int existingProductId = existingProductOpt.get().getId();
+            int duplicateProductId = duplicateProductOpt.get().getId();
+
+            if (existingProductId != duplicateProductId) {
+                throw new ProductAlreadyExistsException("A product with the name '" + updatedProductDTO.getName() + "' already exists.");
+            }
+        }
+        Product existingProduct = existingProductOpt.get();
+        existingProduct.setName(updatedProductDTO.getName());
+        existingProduct.setDescription(updatedProductDTO.getDescription());
+        existingProduct.setPrice(updatedProductDTO.getPrice());
+        existingProduct.setStock(updatedProductDTO.getStock());
+        existingProduct.setImage_url(updatedProductDTO.getImage_url());
+
+        Product savedProduct = productRepository.save(existingProduct);
+
+        return new ResponseEntity<>(updatedProductDTO, HttpStatus.OK);
     }
 
-    public ResponseEntity<ProductDTO> updateProduct(int id, ProductDTO updatedProductDTO) {
-        if (!productRepository.existsById(id)) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        Product updatedProduct = convertToEntity(updatedProductDTO);
-        updatedProduct.setId(id);
-        Product savedProduct = productRepository.save(updatedProduct);
-        ProductDTO savedProductDTO = convertToDTO(savedProduct);
-        return new ResponseEntity<>(savedProductDTO, HttpStatus.OK);
-    }
 
     public ResponseEntity<Void> deleteProductById(int id) {
         if (productRepository.existsById(id)) {

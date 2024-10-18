@@ -1,92 +1,112 @@
 package com.learningSpringBoot.ProductsAPI.service;
 
+import com.learningSpringBoot.ProductsAPI.dto.AuthResponseDTO;
+import com.learningSpringBoot.ProductsAPI.dto.UpdatedUserDTO;
+import com.learningSpringBoot.ProductsAPI.dto.UserDTO;
 import com.learningSpringBoot.ProductsAPI.exceptions.EmailAlreadyExistsException;
 import com.learningSpringBoot.ProductsAPI.exceptions.UserAlreadyExistsException;
 import com.learningSpringBoot.ProductsAPI.exceptions.UserNotFoundException;
-import com.learningSpringBoot.ProductsAPI.model.Role;
 import com.learningSpringBoot.ProductsAPI.model.User;
 import com.learningSpringBoot.ProductsAPI.repository.UserRepository;
-import org.apache.commons.codec.digest.DigestUtils;
+import com.learningSpringBoot.ProductsAPI.security.CustomUserDetailsService;
+import com.learningSpringBoot.ProductsAPI.security.JwtGenerator;
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-
-import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
-import static com.learningSpringBoot.ProductsAPI.constants.RolesConstants.USER_ROLE;
-import static com.learningSpringBoot.ProductsAPI.constants.RolesConstants.USER_ROLE_ID;
+
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtGenerator jwtGenerator;
+    private final AuthenticationManager authenticationManager;
+    private final CustomUserDetailsService customUserDetailsService;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtGenerator jwtGenerator, AuthenticationManager authenticationManager, CustomUserDetailsService customUserDetailsService) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtGenerator = jwtGenerator;
+        this.authenticationManager = authenticationManager;
+        this.customUserDetailsService = customUserDetailsService;
     }
 
-    /*public ResponseEntity<Void> createUser(String name, String email, String password) {
-
-        if (userRepository.existsByName(name)) {
-            throw new UserAlreadyExistsException("Username '" + name + "' already in use.");
-        }
-
-        if (userRepository.existsByEmail(email)) {
-            throw new EmailAlreadyExistsException("An account with email '" + email + "' already exists.");
-        }
-
-
-        User user = new User();
-        Role defaultRole = new Role();
-        defaultRole.setName(USER_ROLE);
-        defaultRole.setId(USER_ROLE_ID);
-
-        user.setName(name);
-        user.setEmail(email);
-
-        String hashedPassword = DigestUtils.sha256Hex(password);
-        user.setPassword(hashedPassword);
-
-        user.
-        user.setRoles();
-
-        userRepository.save(user);
-
-        return  new ResponseEntity<>(HttpStatus.CREATED);
-    }*/
-
-    public ResponseEntity<Void> updateUser(int id, String name, String email) {
-
-        Optional<User> user = userRepository.findById(id);
+    public ResponseEntity<?> updateUser(UpdatedUserDTO updatedUserDTO) {
+        Optional<User> user = userRepository.findUserByName(updatedUserDTO.getName());
 
         if (user.isEmpty()) {
-            throw new UserNotFoundException("User with id '" + id + "' not found.");
+            throw new UserNotFoundException("User with name: '" + updatedUserDTO.getName() + "' not found.");
         }
 
-
-
-
-        if (userRepository.existsByName(name)) {
-            throw new UserAlreadyExistsException("Username '" + name + "' already in use.");
-        }
         User userToUpdate = user.get();
-        userToUpdate.setName(name);
-        userToUpdate.setEmail(email);
 
+        // Actualizar el nombre si es necesario
+        if (updatedUserDTO.getNewName() != null && !updatedUserDTO.getNewName().isEmpty()) {
+            // Verifica si el nuevo nombre ya existe
+            if (userRepository.findUserByName(updatedUserDTO.getNewName()).isPresent()) {
+                throw new UserAlreadyExistsException("User with name: '" + updatedUserDTO.getNewName() + "' already exists.");
+            }
+            userToUpdate.setName(updatedUserDTO.getNewName());
+        }
+
+        // Actualizar el correo electrónico si es necesario
+        if (updatedUserDTO.getNewEmail() != null && !updatedUserDTO.getNewEmail().isEmpty()) {
+            if (!userRepository.existsByEmail(updatedUserDTO.getNewEmail())) {
+                userToUpdate.setEmail(updatedUserDTO.getNewEmail());
+            } else if (!userToUpdate.getEmail().equals(updatedUserDTO.getNewEmail())
+                    && userRepository.existsByEmail(updatedUserDTO.getNewEmail())) {
+                throw new EmailAlreadyExistsException("Email already exists.");
+            }
+        }
+
+        // Guardar los cambios en el usuario
         userRepository.save(userToUpdate);
 
-        return  new ResponseEntity<>(HttpStatus.OK);
+        // Crear un nuevo UserDetails basado en el usuario actualizado
+
+        UserDetails userDetails = this.customUserDetailsService.loadUserByUsername(userToUpdate.getName());
+
+        // Crear un nuevo objeto Authentication
+        UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(
+                userDetails,
+                null, // No necesitas la contraseña
+                userDetails.getAuthorities() // Roles
+        );
+
+        // Establecer la nueva autenticación en el contexto
+        SecurityContextHolder.getContext().setAuthentication(newAuth);
+
+        // Generar un nuevo token con los datos actualizados del usuario (nuevo username o email)
+        String newToken = jwtGenerator.generateToken(newAuth);
+
+        UserDTO userDTO = new UserDTO();
+        userDTO.setName(userToUpdate.getName());
+        userDTO.setEmail(userToUpdate.getEmail());
+
+        AuthResponseDTO response = new AuthResponseDTO(newToken, userDTO);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    public ResponseEntity<Void> deleteUserById(int id) {
-        if (!userRepository.existsById(id)) {
-            throw new UserNotFoundException("User with id '" + id + "' not found.");
-        }
-        userRepository.deleteById(id);
+    @Transactional
+    public ResponseEntity<Void> deleteUserById(UserDTO userDTO) {
+        User user = (User) userRepository.findByEmail(userDTO.getEmail())
+                .orElseThrow(() -> new UserNotFoundException("User with email '" + userDTO.getEmail() + "' not found."));
+
+        user.getRoles().clear();
+
+        userRepository.delete(user);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

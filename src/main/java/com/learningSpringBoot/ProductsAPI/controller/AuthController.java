@@ -1,9 +1,6 @@
 package com.learningSpringBoot.ProductsAPI.controller;
 
-import com.learningSpringBoot.ProductsAPI.dto.AuthResponseDTO;
-import com.learningSpringBoot.ProductsAPI.dto.LoginDTO;
-import com.learningSpringBoot.ProductsAPI.dto.LoginErrorDTO;
-import com.learningSpringBoot.ProductsAPI.dto.RegisterDTO;
+import com.learningSpringBoot.ProductsAPI.dto.*;
 import com.learningSpringBoot.ProductsAPI.model.Role;
 import com.learningSpringBoot.ProductsAPI.model.User;
 import com.learningSpringBoot.ProductsAPI.repository.RoleRepository;
@@ -63,17 +60,20 @@ public class AuthController {
             if(user.isPresent() && passwordEncoder.matches(loginDTO.getPassword(),user.get().getPassword())){
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 String token = jwtGenerator.generateToken(authentication);
-                AuthResponseDTO response = new AuthResponseDTO(token);
+                UserDTO userDTO = new UserDTO();
+                userDTO.setName(user.get().getName());
+                userDTO.setEmail(user.get().getEmail());
+                AuthResponseDTO response = new AuthResponseDTO(token, userDTO);
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
 
             LoginErrorDTO errorResponse = new LoginErrorDTO("Invalid credentials.");
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
 
 
     }
 
-
+    //TODO: logout function
 
     @PostMapping("register")
     public ResponseEntity<String> register(@RequestBody RegisterDTO registerDTO){

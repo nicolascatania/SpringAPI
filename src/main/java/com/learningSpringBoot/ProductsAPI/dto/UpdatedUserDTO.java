@@ -1,11 +1,10 @@
 package com.learningSpringBoot.ProductsAPI.dto;
 
-
 import lombok.Data;
 
 @Data
-public class UserDTO {
+public class UpdatedUserDTO {
     private String name;
-    private String email;
-
+    private String newEmail;
+    private String newName;
 }
