@@ -14,6 +14,5 @@ public class ProductDTO {
     private double price;
     private int stock;
     private String image_url;
-    private String category_name;
-    //Todo: category_name should be category_id or an INT to be more standarized an avoid problems with human errors when typing the category name.
+    private int category_id;
 }

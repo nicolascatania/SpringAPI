@@ -81,7 +81,7 @@ public class CategoryService {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    public ResponseEntity<List<ProductDTO>> getProductsByCategoryId(int categoryId) {
+    /*public ResponseEntity<List<ProductDTO>> getProductsByCategoryId(int categoryId) {
         Optional<Category> category = categoryRepository.findById(categoryId);
         if (category.isPresent()) {
             List<Product> products = category.get().getCategoryProducts();
@@ -93,6 +93,6 @@ public class CategoryService {
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-    }
+    }*/
 
 }

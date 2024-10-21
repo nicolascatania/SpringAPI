@@ -7,12 +7,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class UpdatedProductDTO {
-    private String oldName;
+public class ProductResponseDTO {
     private String name;
     private String description;
     private double price;
     private int stock;
     private String image_url;
-    private int category_id;
+    private String category_name;
 }

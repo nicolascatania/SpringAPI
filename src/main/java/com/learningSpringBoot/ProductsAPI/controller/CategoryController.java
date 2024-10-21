@@ -47,8 +47,9 @@ public class CategoryController {
         return categoryService.deleteCategory(id);
     }
 
-    @GetMapping("/productsByCategoryId/{id}")
+    //TODO: fix this method, a small problem with old convertToDTO function.
+    /*@GetMapping("/productsByCategoryId/{id}")
     public ResponseEntity<List<ProductDTO>> getProductsByCategoryId(@PathVariable int id){
         return categoryService.getProductsByCategoryId(id);
-    }
+    }*/
 }

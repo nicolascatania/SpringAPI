@@ -1,9 +1,12 @@
 package com.learningSpringBoot.ProductsAPI.service;
 import com.learningSpringBoot.ProductsAPI.dto.ProductDTO;
+import com.learningSpringBoot.ProductsAPI.dto.ProductResponseDTO;
 import com.learningSpringBoot.ProductsAPI.dto.UpdatedProductDTO;
+import com.learningSpringBoot.ProductsAPI.exceptions.CategoryNotFoundException;
 import com.learningSpringBoot.ProductsAPI.exceptions.ProductAlreadyExistsException;
 import com.learningSpringBoot.ProductsAPI.model.Category;
 import com.learningSpringBoot.ProductsAPI.model.Product;
+import com.learningSpringBoot.ProductsAPI.repository.CategoryRepository;
 import com.learningSpringBoot.ProductsAPI.repository.ProductRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,31 +19,12 @@ import java.util.stream.Collectors;
 @Service
 public class ProductService {
 
+    final CategoryRepository categoryRepository;
     final ProductRepository productRepository;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
-    }
-
-    public ProductDTO convertToDTO(Product product) {
-        return new ProductDTO(
-                product.getName(),
-                product.getDescription(),
-                product.getPrice(),
-                product.getStock(),
-                product.getImage_url(),
-                product.getCategory() != null ? product.getCategory().getName() : null
-        );
-    }
-
-    public Product convertToEntity(ProductDTO productDTO) {
-        Product product = new Product();
-        product.setName(productDTO.getName());
-        product.setDescription(productDTO.getDescription());
-        product.setPrice(productDTO.getPrice());
-        product.setStock(productDTO.getStock());
-        product.setImage_url(productDTO.getImage_url());
-        return product;
+        this.categoryRepository = categoryRepository;
     }
 
     public ResponseEntity<ProductDTO> createProduct(ProductDTO productDTO) {
@@ -48,22 +32,40 @@ public class ProductService {
             throw new ProductAlreadyExistsException("A product with the name '" + productDTO.getName() + "' already exists.");
         }
 
-        Product product = convertToEntity(productDTO);
-        Product savedProduct = productRepository.save(product);
-        ProductDTO savedProductDTO = convertToDTO(savedProduct);
-        return new ResponseEntity<>(savedProductDTO, HttpStatus.CREATED);
+        Optional<Category> categoryOpt = categoryRepository.findById(productDTO.getCategory_id());
+
+        if (categoryOpt.isEmpty()) {
+            throw new CategoryNotFoundException("Category ID does not exist");
+        }
+        Category category = categoryOpt.get();
+
+        Product product = new Product();
+        product.setName(productDTO.getName());
+        product.setPrice(productDTO.getPrice());
+        product.setStock(productDTO.getStock());
+        product.setImage_url(productDTO.getImage_url());
+        product.setDescription(productDTO.getDescription());
+        product.setCategory(category);
+
+        productRepository.save(product);
+
+        return new ResponseEntity<>(productDTO, HttpStatus.CREATED);
     }
 
-    public ResponseEntity<List<ProductDTO>> getAllProducts() {
-        List<Product> products = productRepository.findAll();
-        if (products.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
 
-        List<ProductDTO> productDTOs = products.stream()
+    public ResponseEntity<List<ProductResponseDTO>> getAllProducts() {
+        List<Product> products = productRepository.findAll();
+
+        List<ProductResponseDTO> productDTOs = products.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
-        return new ResponseEntity<>(productDTOs, HttpStatus.OK);
+
+        return new ResponseEntity<>(productDTOs, productDTOs.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK);
+    }
+
+    private ProductResponseDTO convertToDTO(Product product) {
+        return new ProductResponseDTO(product.getName(), product.getDescription(), product.getPrice(), product.getStock(),
+                product.getImage_url(), product.getCategory().getName());
     }
 
 
@@ -84,13 +86,22 @@ public class ProductService {
                 throw new ProductAlreadyExistsException("A product with the name '" + updatedProductDTO.getName() + "' already exists.");
             }
         }
+
+        Optional<Category> categoryOpt = categoryRepository.findById(updatedProductDTO.getCategory_id());
+
+        if (categoryOpt.isEmpty()) {
+            throw new CategoryNotFoundException("Category ID does not exist");
+        }
+        Category category = categoryOpt.get();
+
+
         Product existingProduct = existingProductOpt.get();
         existingProduct.setName(updatedProductDTO.getName());
         existingProduct.setDescription(updatedProductDTO.getDescription());
         existingProduct.setPrice(updatedProductDTO.getPrice());
         existingProduct.setStock(updatedProductDTO.getStock());
         existingProduct.setImage_url(updatedProductDTO.getImage_url());
-
+        existingProduct.setCategory(category);
         Product savedProduct = productRepository.save(existingProduct);
 
         return new ResponseEntity<>(updatedProductDTO, HttpStatus.OK);

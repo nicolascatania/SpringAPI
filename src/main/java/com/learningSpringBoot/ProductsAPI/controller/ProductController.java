@@ -1,6 +1,7 @@
 package com.learningSpringBoot.ProductsAPI.controller;
 
 import com.learningSpringBoot.ProductsAPI.dto.ProductDTO;
+import com.learningSpringBoot.ProductsAPI.dto.ProductResponseDTO;
 import com.learningSpringBoot.ProductsAPI.dto.UpdatedProductDTO;
 import com.learningSpringBoot.ProductsAPI.dto.UpdatedUserDTO;
 import com.learningSpringBoot.ProductsAPI.exceptions.ProductAlreadyExistsException;
@@ -22,9 +23,9 @@ public class ProductController {
         this.productService = productService;
     }
 
-    //TODO: fix problem with categories, they are not beign saved/related, whatever, there is a problem.
+
     @GetMapping
-    public ResponseEntity<List<ProductDTO>> getAllProducts() {
+    public ResponseEntity<List<ProductResponseDTO>> getAllProducts() {
         return productService.getAllProducts();
     }
 
@@ -35,9 +36,9 @@ public class ProductController {
     }
 
 
-    //TODO: make a page on the frontend so the adminn can remove a product
-    //TODO: remove the id thing, use product name instead
+    //TODO: make a page or put icons on objects on the frontend so the admin can remove a product
 
+    //TODO: remove the id thing, use product name instead
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Void> deleteProductById(@PathVariable int id) {

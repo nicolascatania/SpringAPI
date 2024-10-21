@@ -1,8 +1,6 @@
 package com.learningSpringBoot.ProductsAPI.service;
 
-import com.learningSpringBoot.ProductsAPI.dto.AuthResponseDTO;
-import com.learningSpringBoot.ProductsAPI.dto.UpdatedUserDTO;
-import com.learningSpringBoot.ProductsAPI.dto.UserDTO;
+import com.learningSpringBoot.ProductsAPI.dto.*;
 import com.learningSpringBoot.ProductsAPI.exceptions.EmailAlreadyExistsException;
 import com.learningSpringBoot.ProductsAPI.exceptions.UserAlreadyExistsException;
 import com.learningSpringBoot.ProductsAPI.exceptions.UserNotFoundException;
@@ -13,17 +11,16 @@ import com.learningSpringBoot.ProductsAPI.security.JwtGenerator;
 import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.util.Optional;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -32,14 +29,12 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtGenerator jwtGenerator;
-    private final AuthenticationManager authenticationManager;
     private final CustomUserDetailsService customUserDetailsService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtGenerator jwtGenerator, AuthenticationManager authenticationManager, CustomUserDetailsService customUserDetailsService) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtGenerator jwtGenerator, CustomUserDetailsService customUserDetailsService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtGenerator = jwtGenerator;
-        this.authenticationManager = authenticationManager;
         this.customUserDetailsService = customUserDetailsService;
     }
 
@@ -52,16 +47,13 @@ public class UserService {
 
         User userToUpdate = user.get();
 
-        // Actualizar el nombre si es necesario
         if (updatedUserDTO.getNewName() != null && !updatedUserDTO.getNewName().isEmpty()) {
-            // Verifica si el nuevo nombre ya existe
-            if (userRepository.findUserByName(updatedUserDTO.getNewName()).isPresent()) {
+            if (userRepository.findUserByName(updatedUserDTO.getNewName()).isPresent() && !(updatedUserDTO.getNewName().equals(userToUpdate.getName()))) {
                 throw new UserAlreadyExistsException("User with name: '" + updatedUserDTO.getNewName() + "' already exists.");
             }
             userToUpdate.setName(updatedUserDTO.getNewName());
         }
 
-        // Actualizar el correo electrónico si es necesario
         if (updatedUserDTO.getNewEmail() != null && !updatedUserDTO.getNewEmail().isEmpty()) {
             if (!userRepository.existsByEmail(updatedUserDTO.getNewEmail())) {
                 userToUpdate.setEmail(updatedUserDTO.getNewEmail());
@@ -71,24 +63,17 @@ public class UserService {
             }
         }
 
-        // Guardar los cambios en el usuario
         userRepository.save(userToUpdate);
 
-        // Crear un nuevo UserDetails basado en el usuario actualizado
-
         UserDetails userDetails = this.customUserDetailsService.loadUserByUsername(userToUpdate.getName());
-
-        // Crear un nuevo objeto Authentication
         UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(
                 userDetails,
-                null, // No necesitas la contraseña
-                userDetails.getAuthorities() // Roles
+                null,
+                userDetails.getAuthorities()
         );
 
-        // Establecer la nueva autenticación en el contexto
         SecurityContextHolder.getContext().setAuthentication(newAuth);
 
-        // Generar un nuevo token con los datos actualizados del usuario (nuevo username o email)
         String newToken = jwtGenerator.generateToken(newAuth);
 
         UserDTO userDTO = new UserDTO();
@@ -100,13 +85,69 @@ public class UserService {
     }
 
     @Transactional
-    public ResponseEntity<Void> deleteUserById(UserDTO userDTO) {
-        User user = (User) userRepository.findByEmail(userDTO.getEmail())
-                .orElseThrow(() -> new UserNotFoundException("User with email '" + userDTO.getEmail() + "' not found."));
+    public ResponseEntity<Void> deleteUser(String name) {
+        User user = getUserByName(name);
 
         user.getRoles().clear();
 
         userRepository.delete(user);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    public ResponseEntity<PasswordChangeResponseDTO> changePassword(ChangedPasswordDTO changedPasswordDTO) {
+        User user = getUserByName(changedPasswordDTO.getName());
+
+        if (!passwordEncoder.matches(changedPasswordDTO.getOldPassword(), user.getPassword())) {
+            throw new BadCredentialsException("Old password does not match.");
+        }
+
+        user.setPassword(passwordEncoder.encode(changedPasswordDTO.getNewPassword()));
+        userRepository.save(user);
+
+        String newToken = updateSecurityContextAndGenerateToken(user);
+
+        PasswordChangeResponseDTO response = new PasswordChangeResponseDTO(newToken, "Password changed successfully");
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+
+    private User getUserByName(String username) {
+        return userRepository.findUserByName(username)
+                .orElseThrow(() -> new UserNotFoundException("User with name: '" + username + "' not found."));
+    }
+
+
+    private String updateSecurityContextAndGenerateToken(User user) {
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getName());
+
+        UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(
+                userDetails,
+                null,
+                userDetails.getAuthorities()
+        );
+
+        SecurityContextHolder.getContext().setAuthentication(newAuth);
+
+        return jwtGenerator.generateToken(newAuth);
+    }
+
+
+    public ResponseEntity<List<UserDTO>> getUsers() {
+        List<User> users = userRepository.findAll();
+
+        List<UserDTO> userList = users.stream()
+                .map(this::convertToUserDTO)
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(userList, HttpStatus.OK);
+    }
+
+    private UserDTO convertToUserDTO(User user) {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setName(user.getName());
+        userDTO.setEmail(user.getEmail());
+        return userDTO;
     }
 }

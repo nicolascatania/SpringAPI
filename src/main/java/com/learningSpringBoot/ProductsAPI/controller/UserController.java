@@ -1,11 +1,15 @@
 package com.learningSpringBoot.ProductsAPI.controller;
 
+import com.learningSpringBoot.ProductsAPI.dto.ChangedPasswordDTO;
+import com.learningSpringBoot.ProductsAPI.dto.PasswordChangeResponseDTO;
 import com.learningSpringBoot.ProductsAPI.dto.UpdatedUserDTO;
 import com.learningSpringBoot.ProductsAPI.dto.UserDTO;
-import com.learningSpringBoot.ProductsAPI.model.User;
 import com.learningSpringBoot.ProductsAPI.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -19,18 +23,24 @@ public class UserController {
         this.userService = userService;
     }
 
-    /*@PostMapping
-    public ResponseEntity<Void> createUser(@RequestBody User user) {
-        return userService.createUser(user.getName(), user.getEmail(), user.getPassword());
-    }*/
-
     @PutMapping("/updateUser")
     public ResponseEntity<?> updateUser(@RequestBody UpdatedUserDTO updatedUserDTO) {
         return userService.updateUser(updatedUserDTO);
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<Void> deleteUserById(@RequestBody UserDTO userDTO) {
-        return userService.deleteUserById(userDTO);
+    public ResponseEntity<Void> deleteUser(@RequestBody String name) {
+        return userService.deleteUser(name);
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<PasswordChangeResponseDTO> changePassword(@RequestBody ChangedPasswordDTO changedPasswordDTO) {
+        return userService.changePassword(changedPasswordDTO);
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping("/getUsers")
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        return userService.getUsers();
     }
 }
