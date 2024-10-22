@@ -7,14 +7,15 @@ I am currently learning to create APIs with SpringBoot so I built this, a simple
 - Inversion of control.
 - Dependency injection.
 - Spring Security and JWT based authorization.
-- CRUD for different entyties.
+- CRUD for different entyties. For example: admins will be able to se the full list of users and remove them. A normal user can register (create) his user, login and then edit its profile.
 - Password encryption with BCrypt.
 - Implementation of authorization with roles.
 
 
 ## What is coming...
 - I'll try to add more funciontalities to this.
-- A frontend page with ANGULAR to make it more cool.
+- A frontend page with ANGULAR to make it more cool (working on it, pretty basic just to make the frontend conection and functionalities, not focused on style or looks).
 - Unit Testing with Junit and Mockito.
 - A propper documentation.
 - OAtuh2.
+- Products CRUD incoming. Filter by category.
