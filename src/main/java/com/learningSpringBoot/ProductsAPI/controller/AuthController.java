@@ -1,5 +1,6 @@
 package com.learningSpringBoot.ProductsAPI.controller;
 
+import com.learningSpringBoot.ProductsAPI.constants.RolesConstants;
 import com.learningSpringBoot.ProductsAPI.dto.*;
 import com.learningSpringBoot.ProductsAPI.model.Role;
 import com.learningSpringBoot.ProductsAPI.model.User;
@@ -10,6 +11,7 @@ import com.learningSpringBoot.ProductsAPI.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -33,7 +36,6 @@ public class AuthController {
     private RoleRepository roleRepository;
     private PasswordEncoder passwordEncoder;
     private JwtGenerator jwtGenerator;
-
 
     @Autowired
     public AuthController(UserRepository userRepository, AuthenticationManager authenticationManager,
@@ -90,16 +92,66 @@ public class AuthController {
         user.setEmail(registerDTO.getEmail());
         user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
 
-        Role role = roleRepository.findByName("ROLE_USER");
-        if (role == null) {
-            return new ResponseEntity<>("Role not found-", HttpStatus.BAD_REQUEST);
-        }
+        List<Role> roles = new ArrayList<>();
+        roles.add(new Role(RolesConstants.USER_ROLE_ID, RolesConstants.USER_ROLE));
 
-        List<Role> roles = Collections.singletonList(role);
         user.setRoles(roles);
 
         userRepository.save(user);
 
         return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
     }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PostMapping("/make-admin")
+    public ResponseEntity<String> makeAdmin(@RequestBody String name) {
+        Optional<User> userOptional = userRepository.findUserByName(name);
+        if (userOptional.isPresent()) {
+            User updateUser = userOptional.get();
+            List<Role> roles = updateUser.getRoles();
+            if (roles == null) {
+                roles = new ArrayList<>();
+            }
+
+            boolean isAdmin = roles.stream().anyMatch(role -> role.getName().equals(RolesConstants.ADMIN_ROLE));
+            if (!isAdmin) {
+                roles.add(new Role(RolesConstants.ADMIN_ROLE_ID, RolesConstants.ADMIN_ROLE));
+                updateUser.setRoles(roles);
+                userRepository.save(updateUser);
+                return new ResponseEntity<>("Operation successful.", HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("User is already an admin.", HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        return new ResponseEntity<>("Username not found.", HttpStatus.NOT_FOUND);
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PostMapping("/remove-admin")
+    public ResponseEntity<String> removeAdmin(@RequestBody String name) {
+        Optional<User> userOptional = userRepository.findUserByName(name);
+        if (userOptional.isPresent()) {
+            User updateUser = userOptional.get();
+            List<Role> roles = updateUser.getRoles();
+
+            if (roles != null) {
+                boolean isAdmin = roles.stream().anyMatch(role -> role.getName().equals(RolesConstants.ADMIN_ROLE));
+                if (isAdmin) {
+                    roles.removeIf(role -> role.getName().equals(RolesConstants.ADMIN_ROLE));
+                    updateUser.setRoles(roles);
+                    userRepository.save(updateUser);
+                    return new ResponseEntity<>("Admin role removed successfully.", HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<>("User is not an admin.", HttpStatus.BAD_REQUEST);
+                }
+            } else {
+                return new ResponseEntity<>("User has no roles assigned.", HttpStatus.BAD_REQUEST);
+            }
+        }
+
+        return new ResponseEntity<>("Username not found.", HttpStatus.NOT_FOUND);
+    }
+
+
 }

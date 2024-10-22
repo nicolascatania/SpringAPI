@@ -134,11 +134,11 @@ public class UserService {
     }
 
 
-    public ResponseEntity<List<UserDTO>> getUsers() {
+    public ResponseEntity<List<UserWithRolesDTO>> getUsers() {
         List<User> users = userRepository.findAll();
 
-        List<UserDTO> userList = users.stream()
-                .map(this::convertToUserDTO)
+        List<UserWithRolesDTO> userList = users.stream()
+                .map(this::convertToUserWithRolesDTO)
                 .collect(Collectors.toList());
 
         return new ResponseEntity<>(userList, HttpStatus.OK);
@@ -148,6 +148,14 @@ public class UserService {
         UserDTO userDTO = new UserDTO();
         userDTO.setName(user.getName());
         userDTO.setEmail(user.getEmail());
+        return userDTO;
+    }
+
+    private UserWithRolesDTO convertToUserWithRolesDTO(User user) {
+        UserWithRolesDTO userDTO = new UserWithRolesDTO();
+        userDTO.setName(user.getName());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setRoles(user.getRoles());
         return userDTO;
     }
 }

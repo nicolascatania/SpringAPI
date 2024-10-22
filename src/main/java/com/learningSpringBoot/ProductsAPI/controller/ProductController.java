@@ -35,17 +35,11 @@ public class ProductController {
             return productService.createProduct(product);
     }
 
-
-    //TODO: make a page or put icons on objects on the frontend so the admin can remove a product
-
-    //TODO: remove the id thing, use product name instead
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/delete")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Void> deleteProductById(@PathVariable int id) {
-        return productService.deleteProductById(id);
+    public ResponseEntity<Void> deleteProduct(@RequestBody String name) {
+        return productService.deleteProduct(name);
     }
-
-
 
     @PutMapping("/update")
     @PreAuthorize("hasRole('ROLE_ADMIN')")

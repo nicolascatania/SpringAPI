@@ -108,12 +108,12 @@ public class ProductService {
     }
 
 
-    public ResponseEntity<Void> deleteProductById(int id) {
-        if (productRepository.existsById(id)) {
-            productRepository.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
+    public ResponseEntity<Void> deleteProduct(String name) {
+        Optional<Product> productOpt = productRepository.findByName(name);
+        if (productOpt.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        productRepository.delete(productOpt.get());
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
