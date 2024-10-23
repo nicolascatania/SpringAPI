@@ -14,7 +14,7 @@ I am currently learning to create APIs with SpringBoot so I built this, a simple
 
 ## What is coming...
 - I'll try to add more funciontalities to this.
-- A frontend page with ANGULAR to make it more cool (working on it, pretty basic just to make the frontend conection and functionalities, not focused on style or looks).
+- A frontend page with ANGULAR to make it more cool (working on it, pretty basic just to make the frontend conection and functionalities and reactive forms with validations, not focused on style or looks at all).
 - Unit Testing with Junit and Mockito.
 - A propper documentation.
 - OAtuh2.
