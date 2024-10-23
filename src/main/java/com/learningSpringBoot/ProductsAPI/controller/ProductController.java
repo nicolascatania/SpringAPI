@@ -31,7 +31,7 @@ public class ProductController {
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO product) throws ProductAlreadyExistsException {
+    public ResponseEntity<String> createProduct(@RequestBody ProductDTO product) throws ProductAlreadyExistsException {
             return productService.createProduct(product);
     }
 

@@ -27,7 +27,7 @@ public class ProductService {
         this.categoryRepository = categoryRepository;
     }
 
-    public ResponseEntity<ProductDTO> createProduct(ProductDTO productDTO) {
+    public ResponseEntity<String> createProduct(ProductDTO productDTO) {
         if (productRepository.findByName(productDTO.getName()).isPresent()) {
             throw new ProductAlreadyExistsException("A product with the name '" + productDTO.getName() + "' already exists.");
         }
@@ -49,7 +49,7 @@ public class ProductService {
 
         productRepository.save(product);
 
-        return new ResponseEntity<>(productDTO, HttpStatus.CREATED);
+        return new ResponseEntity<>("Product created Successfully", HttpStatus.CREATED);
     }
 
 

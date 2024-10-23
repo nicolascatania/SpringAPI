@@ -76,7 +76,7 @@ public class AuthController {
     }
 
     //TODO: logout function
-
+    //TODO: resolve refresh token thing
     @PostMapping("register")
     public ResponseEntity<String> register(@RequestBody RegisterDTO registerDTO){
         if(userRepository.existsByName(registerDTO.getName())){
