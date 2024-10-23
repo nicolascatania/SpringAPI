@@ -18,4 +18,5 @@ I am currently learning to create APIs with SpringBoot so I built this, a simple
 - Unit Testing with Junit and Mockito.
 - A propper documentation.
 - OAtuh2.
-- Products CRUD incoming. Filter by category.
+- Products CRUD incoming (only update left).
+- Filter products by category.
