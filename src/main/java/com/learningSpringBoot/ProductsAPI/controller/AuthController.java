@@ -8,6 +8,7 @@ import com.learningSpringBoot.ProductsAPI.repository.RoleRepository;
 import com.learningSpringBoot.ProductsAPI.repository.UserRepository;
 import com.learningSpringBoot.ProductsAPI.security.JwtGenerator;
 import com.learningSpringBoot.ProductsAPI.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -102,6 +103,7 @@ public class AuthController {
         return new ResponseEntity<>("User registered successfully", HttpStatus.OK);
     }
 
+    @Operation(summary = "ONLY FOR ADMINS, Grants another user admin role")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/make-admin")
     public ResponseEntity<String> makeAdmin(@RequestBody String name) {
@@ -127,6 +129,7 @@ public class AuthController {
         return new ResponseEntity<>("Username not found.", HttpStatus.NOT_FOUND);
     }
 
+    @Operation(summary = "ONLY FOR ADMINS, remose the admin role from a given user")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/remove-admin")
     public ResponseEntity<String> removeAdmin(@RequestBody String name) {

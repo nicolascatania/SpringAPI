@@ -6,6 +6,7 @@ import com.learningSpringBoot.ProductsAPI.dto.UpdatedProductDTO;
 import com.learningSpringBoot.ProductsAPI.dto.UpdatedUserDTO;
 import com.learningSpringBoot.ProductsAPI.exceptions.ProductAlreadyExistsException;
 import com.learningSpringBoot.ProductsAPI.service.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,7 @@ public class ProductController {
     public ResponseEntity<List<ProductResponseDTO>> getAllProducts() {
         return productService.getAllProducts();
     }
+
 
     @PostMapping("/create")
     @PreAuthorize("hasRole('ROLE_ADMIN')")

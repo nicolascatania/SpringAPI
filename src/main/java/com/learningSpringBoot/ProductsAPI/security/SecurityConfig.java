@@ -39,6 +39,8 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests.requestMatchers("/api/auth/**").permitAll()
+                                .requestMatchers("/doc/**").permitAll()
+                                .requestMatchers("/v3/api-docs/**").permitAll()
                                 .requestMatchers("/api/auth/make-admin").hasRole("ADMIN")
                                 .requestMatchers("/api/auth/remove-admin").hasRole("ADMIN")
                                 .anyRequest().authenticated()
