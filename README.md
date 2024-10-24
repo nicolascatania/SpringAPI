@@ -20,3 +20,5 @@ I am currently learning to create APIs with SpringBoot so I built this, a simple
 - OAtuh2.
 - Filter products by category.
 - Sorting products by certain fields. (probably i'll to this all in the frontend due to the way the app is built)
+- I'll post the frontend here and explain step by step how to make it function
+- DEPLOY
