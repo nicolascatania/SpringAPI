@@ -7,7 +7,7 @@ I am currently learning to create APIs with SpringBoot so I built this, a simple
 - Inversion of control.
 - Dependency injection.
 - Spring Security and JWT based authorization.
-- CRUD for different entyties. For example: admins are be able to se the full list of users and remove them or add/remove the rol ADMIN to any user. A normal user can register (create) his user, login and then edit its profile, also delet their own profile.
+- CRUD for different entyties. For example: admins are be able to se the full list of users and remove them or add/remove the rol ADMIN to any user, moreover, they will create, eliminate or update products. On the other hand, a normal person can register (create an user) himself, login and then edit its profile, also delete their own profile.
 - Password encryption with BCrypt.
 - Implementation of authorization with roles.
 
@@ -18,5 +18,4 @@ I am currently learning to create APIs with SpringBoot so I built this, a simple
 - Unit Testing with Junit and Mockito.
 - A propper documentation.
 - OAtuh2.
-- Products CRUD incoming (only update left).
 - Filter products by category.
