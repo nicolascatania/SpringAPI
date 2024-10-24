@@ -1,5 +1,5 @@
 # SPRING RESTFUL API
-I am currently learning to create APIs with SpringBoot so I built this, a simple concept based in users that can store products that they sell, this products can be asociated to pre created categories.
+I am currently learning to create APIs with SpringBoot so I built this, a simple concept based in users that can store products that they sell, this products can be asociated to pre created categories, and a lot of functionalities and features mentioned below.
 
 ## Features
 - Spring MVC Pattern.
