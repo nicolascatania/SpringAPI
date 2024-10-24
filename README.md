@@ -10,15 +10,12 @@ I am currently learning to create APIs with SpringBoot so I built this, a simple
 - CRUD for different entyties. For example: admins are be able to se the full list of users and remove them or add/remove the rol ADMIN to any user, moreover, they will create, eliminate or update products. On the other hand, a normal person can register (create an user) himself, login and then edit its profile, also delete their own profile.
 - Password encryption with BCrypt.
 - Implementation of authorization with roles.
-
+- Documentation with SpringDocs and Swagger UI, go to: http://localhost:8080/doc/swagger-ui/index.html and make sure to login in the auth endpoint with username: user1, email:"" (I'll fix it is not necessary to log in with email) and password: 12345, u will get access to see and try all the enpoints avaiable for users.
+- Filter products by category.(Developed in the frontend, ill clean this readme when I make the frontend repository)
+- Sorting products by certain fields. (Developed in frontend)
 
 ## What is coming...
 - I'll try to add more funciontalities to this.
-- A frontend page with ANGULAR to make it more cool (working on it, pretty basic just to make the frontend conection and functionalities and reactive forms with validations, not focused on style or looks at all).
 - Unit Testing with Junit and Mockito.
-- A propper documentation.
 - OAtuh2.
-- Filter products by category.
-- Sorting products by certain fields. (probably i'll to this all in the frontend due to the way the app is built)
-- I'll post the frontend here and explain step by step how to make it function
 - DEPLOY
