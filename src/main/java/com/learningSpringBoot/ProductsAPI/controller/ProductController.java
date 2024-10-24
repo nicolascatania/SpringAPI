@@ -43,7 +43,7 @@ public class ProductController {
 
     @PutMapping("/update")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<UpdatedProductDTO> updateProduct(@RequestBody UpdatedProductDTO updatedProduct) throws ProductAlreadyExistsException {
+    public ResponseEntity<String> updateProduct(@RequestBody UpdatedProductDTO updatedProduct) throws ProductAlreadyExistsException {
         return productService.updateProduct(updatedProduct);
     }
 

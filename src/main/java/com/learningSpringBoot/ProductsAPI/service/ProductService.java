@@ -69,7 +69,7 @@ public class ProductService {
     }
 
 
-    public ResponseEntity<UpdatedProductDTO> updateProduct(UpdatedProductDTO updatedProductDTO) {
+    public ResponseEntity<String> updateProduct(UpdatedProductDTO updatedProductDTO) {
 
         Optional<Product> existingProductOpt = productRepository.findByName(updatedProductDTO.getOldName());
 
@@ -104,7 +104,7 @@ public class ProductService {
         existingProduct.setCategory(category);
         Product savedProduct = productRepository.save(existingProduct);
 
-        return new ResponseEntity<>(updatedProductDTO, HttpStatus.OK);
+        return new ResponseEntity<>("product updated successfully", HttpStatus.OK);
     }
 
 
