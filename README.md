@@ -22,3 +22,35 @@ I am currently learning to create APIs with SpringBoot so I built this, a simple
 
 ## How to read the docs
 - Go to: http://localhost:8080/doc/swagger-ui/index.html after you start the application and make sure to login in the auth endpoint with username: user1, email:"" (I'll fix it is not necessary to log in with email) and password: 12345, u will get access to see and try all the enpoints avaiable for users.
+
+# Instalation
+Front end and back end with a database are available in Docker hub, two containers.
+
+- **Frontend**: [`nicolascatania/productsapi-frontend`](https://hub.docker.com/r/nicolascatania/productsapi-frontend)
+- **Backend**: [`nicolascatania/productsapi-backend`](https://hub.docker.com/r/nicolascatania/productsapi-productsapi)
+
+## How to run
+
+1. **Back**:
+
+   ```bash
+   docker run -d -p 8080:8080 --name productsapi-backend nicolascatania/productsapi-backend:latest
+
+
+2. **Front**:
+    ```bash
+    docker run -d -p 4200:4200 --name productsapi-frontend nicolascatania/productsapi-frontend:latest
+
+## Access app
+Frontend: http://localhost:4200
+Backend: http://localhost:8080
+
+## Stop the containers
+  ```bash
+  docker stop productsapi-backend productsapi-frontend
+  ```
+
+## Remove the containers
+  ```bash
+  docker rm productsapi-backend productsapi-frontend
+
