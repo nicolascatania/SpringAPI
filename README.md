@@ -14,9 +14,6 @@ I am currently learning to create APIs with SpringBoot so I built this, a simple
 - Filter products by category.(Developed in the frontend, ill clean this readme when I make the frontend repository)
 - Sorting products by certain fields. (Developed in frontend)
 
-## How to read the docs
-- Go to: http://localhost:8080/doc/swagger-ui/index.html after you start the application and make sure to login in the auth endpoint with username: user1, email:"" (I'll fix it is not necessary to log in with email) and password: 12345, u will get access to see and try all the enpoints avaiable for users.
-
 # Instalation
 Front end and back end with a database are available in Docker hub, two containers.
 
@@ -47,4 +44,7 @@ Backend: http://localhost:8080
 ## Remove the containers
   ```bash
   docker rm productsapi-productsapi productsapi-frontend
+  ```
+## How to read the docs
+- After runing the app succesfully go to: http://localhost:8080/doc/swagger-ui/index.html after you start the application and make sure to login in the auth endpoint with username: user1, email:"" (I'll fix it is not necessary to log in with email) and password: 12345, u will get access to see and try all the enpoints avaiable for users.
 
