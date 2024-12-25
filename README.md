@@ -14,12 +14,6 @@ I am currently learning to create APIs with SpringBoot so I built this, a simple
 - Filter products by category.(Developed in the frontend, ill clean this readme when I make the frontend repository)
 - Sorting products by certain fields. (Developed in frontend)
 
-## What is coming...
-- I'll try to add more funciontalities to this.
-- Unit Testing with Junit and Mockito.
-- OAtuh2.
-- DEPLOY
-
 ## How to read the docs
 - Go to: http://localhost:8080/doc/swagger-ui/index.html after you start the application and make sure to login in the auth endpoint with username: user1, email:"" (I'll fix it is not necessary to log in with email) and password: 12345, u will get access to see and try all the enpoints avaiable for users.
 
