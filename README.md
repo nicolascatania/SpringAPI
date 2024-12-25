@@ -34,7 +34,7 @@ Front end and back end with a database are available in Docker hub, two containe
 1. **Back**:
 
    ```bash
-   docker run -d -p 8080:8080 --name productsapi-backend nicolascatania/productsapi-backend:latest
+   docker run -d -p 8080:8080 --name productsapi-backend nicolascatania/productsapi-productsapi:latest
 
 
 2. **Front**:
@@ -47,10 +47,10 @@ Backend: http://localhost:8080
 
 ## Stop the containers
   ```bash
-  docker stop productsapi-backend productsapi-frontend
+  docker stop productsapi-productsapi productsapi-frontend
   ```
 
 ## Remove the containers
   ```bash
-  docker rm productsapi-backend productsapi-frontend
+  docker rm productsapi-productsapi productsapi-frontend
 
